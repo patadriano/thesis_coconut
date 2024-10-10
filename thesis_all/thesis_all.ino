@@ -20,11 +20,11 @@ unsigned int sample;
 LCD_I2C lcd(0x27, 16, 2); 
 
 //knocking
-const int pwm = 10; // pin 10 as pwm
-const int dir = 9;  // pin 9 as dir
+const int pwm = 10; 
+const int dir = 9;  
 int i = 0;
-const int start = 2; //Button
-const int reverse = 3; //Button2
+const int start = 2; 
+const int reverse = 3; 
 int startState = 1;
 int reverseState = 0;
 
@@ -47,26 +47,27 @@ void setup() {
 void loop() {
 
     startState = digitalRead(start);
-        if (startState == HIGH) {
+        if (startState == LOW) {
             measuring = true;
         } else {
             measuring = false;
             clearData();  
             digitalWrite(dir,HIGH);
-            // Serial.println("1 high"); 
+            Serial.println("1 low"); 
             analogWrite(pwm,i);
         }
+
         reverseState = digitalRead(reverse);
-        if (reverseState == HIGH) {
+        if (reverseState == LOW) {
           digitalWrite(dir,HIGH);
           i = 255;
           analogWrite(pwm,i); 
-          // Serial.println("2 high");    
+          Serial.println("2 high");    
           delay(1000);
         } else {
           digitalWrite(dir,LOW);
           i = 0;
-          // Serial.println("2 low"); 
+          Serial.println("2 low"); 
           analogWrite(pwm,i);
         }
     
