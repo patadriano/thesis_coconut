@@ -71,7 +71,7 @@ void loop() {
           analogWrite(pwm,i);
         }
     
-    while (measuring) {
+    while (measuring==true) {
         lcd.clear();
         digitalWrite(dir,!HIGH);
         i = 255;

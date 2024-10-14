@@ -22,11 +22,18 @@ void loop() {
         digitalWrite(dir, HIGH);  // Set direction to clockwise
         analogWrite(pwm, 100);    // Set speed to max (0-255 range)
         Serial.println("Clockwise rotation");
+        delay(500);  
     } 
-    else if (reverseState == LOW) { // Reverse button pressed
+   
+    else { // Neither button pressed
+        analogWrite(pwm, 0);      // Stop motor
+        Serial.println("Motor stopped");
+    }
+    if (reverseState == LOW) { // Reverse button pressed
         digitalWrite(dir, LOW);   // Set direction to counterclockwise
         analogWrite(pwm, 100);    // Set speed to max
         Serial.println("Counterclockwise rotation");
+        delay(500); 
         
     } 
     else { // Neither button pressed
