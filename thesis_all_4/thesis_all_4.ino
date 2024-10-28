@@ -28,6 +28,8 @@ LCD_I2C lcd(0x27, 16, 2);
 const int pwm = 10;     
 const int dir = 9;
 
+int button=0;
+
 void setup() {
   //
   Serial.begin(9600); 
@@ -48,18 +50,18 @@ void loop() {
   startState = digitalRead(start);
   reverseState = digitalRead(reverse);
 
-    if (startState == HIGH) { 
+    if (startState == HIGH && button==0) { 
         
         
         
         measuring = true;
-
         lcd.clear();
         Serial.println("1 high"); 
+        button = 1;
         
     } 
   
-    else if (reverseState == LOW) { 
+    else if (reverseState == LOW && button==1) { 
       lcd.clear();
         digitalWrite(dir, LOW);  
         analogWrite(pwm, 150);    
@@ -67,7 +69,7 @@ void loop() {
         Serial.println("2 high"); 
         delay(800);
         
-        
+        button = 0;
     } 
     else { // Neither button pressed
         analogWrite(pwm, 0);      // Stop motor
@@ -77,8 +79,7 @@ void loop() {
     }
 
   while (measuring) {
-    digitalWrite(dir, HIGH);  
-    analogWrite(pwm, 200);    
+     
     Serial.println("Clockwise rotation");
     Serial.println("Collecting and processing frequencies...");
     for (int j = 0; j < 3; j++) {
@@ -99,7 +100,8 @@ void loop() {
             }
         }
 
-
+         digitalWrite(dir, HIGH);  
+    analogWrite(pwm, 230);  
         FFT.Windowing(vReal, SAMPLES, FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Apply windowing
         FFT.Compute(vReal, vImag, SAMPLES, FFT_FORWARD); // Compute FFT
         FFT.ComplexToMagnitude(vReal, vImag, SAMPLES); // Convert to magnitude
@@ -130,7 +132,7 @@ void loop() {
 
 
     // Find the index of the maximum sound value
-    int maxSoundIndex = findSecondMaxSoundIndex(sound, 3);
+    int maxSoundIndex = findMaxSoundIndex(sound, 3);
     double maxSoundValue = sound[maxSoundIndex];
     double maxFrequency = frequencies[maxSoundIndex];
 
@@ -147,16 +149,20 @@ void loop() {
     lcd.print("Type: ");
     // delay(500);
 
-
-
+  delay(500);
+  Serial.println("button: ");
+  Serial.println(button);
   startState = digitalRead(start);
   if (startState == HIGH) {
     measuring = true;
-    Serial.println("1 high"); 
+    Serial.println("1 high");
+    
+
   } else {
     measuring = false;
     clearData();
     Serial.println("1 low"); 
+    
   }
 }
 
@@ -231,3 +237,4 @@ void clearData() {
         sound[i] = 0; 
     }
 }
+

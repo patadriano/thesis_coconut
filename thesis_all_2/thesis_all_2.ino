@@ -47,7 +47,7 @@ void loop() {
   startState = digitalRead(start);
   reverseState = digitalRead(reverse);
 
-    if (startState == LOW) { 
+    if (startState == HIGH) { 
         digitalWrite(dir, HIGH);  
         analogWrite(pwm, 100);    
         Serial.println("Clockwise rotation");
