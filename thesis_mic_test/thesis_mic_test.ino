@@ -1,10 +1,7 @@
-
 #include "arduinoFFT.h"
-
-
 #define SAMPLES 128             // SAMPLES-pt FFT. Must be a base 2 number. Max 128 for Arduino Uno.
 #define SAMPLING_FREQUENCY 2048 // Sampling frequency in Hz
-#define INPUT_PIN A0            // Analog input pin
+#define INPUT_PIN A1            // Analog input pin
 arduinoFFT FFT = arduinoFFT();
 unsigned int samplingPeriod;
 unsigned long microSeconds;
@@ -157,10 +154,3 @@ void clearData() {
         sound[i] = 0;
     }
 }
-
-
-
-
-
-
-

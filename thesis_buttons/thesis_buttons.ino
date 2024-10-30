@@ -9,17 +9,17 @@ void setup() {
 }
 
 void loop() {
-  // buttonState1 = digitalRead(buttonPin1);
-  // if (buttonState1 == LOW) {
-  //   Serial.println("1 high"); 
-  // } else {
-  //   Serial.println("1 low"); 
-  // }
+   buttonState1 = digitalRead(buttonPin1);
+  if (buttonState1 == LOW) {
+    Serial.println("1 low"); 
+  } else {
+    Serial.println("1 high"); 
+  }
 
   buttonState2 = digitalRead(buttonPin2);
-  if (buttonState2 == LOW) {
-    Serial.println("2 high"); 
-  } else {
+  if (buttonState2 == HIGH) {
     Serial.println("2 low"); 
+  } else {
+    Serial.println("2 high"); 
   }
 }
