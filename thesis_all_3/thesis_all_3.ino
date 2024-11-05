@@ -10,8 +10,9 @@ double vReal[SAMPLES];         // Array to hold real part of FFT
 double vImag[SAMPLES];         // Array to hold imaginary part of FFT
 bool measuring = false;  
      // Flag to indicate if measurements should be taken
-double frequencies[3];        // Array to store the first s0 frequencies
-double sound[3];              // Array to store the first s0 sound values
+double frequencies[8];        // Array to store the first s0 frequencies
+double sound[8];  
+            // Array to store the first s0 sound values
 const int sampleWindow = 50;   // Sample window width in mS (50 mS = 20Hz)
 unsigned int sample;
 
@@ -24,67 +25,53 @@ int reverseState = HIGH;
 #include <LCD-I2C.h>
 LCD_I2C lcd(0x27, 16, 2);
 
-//knock
-const int pwm = 10;     
-const int dir = 9;
+
+int button=0;
+//vib
+int vib_pin = 7;
+int Sensor_State = 0;
+double vib[8];
 
 void setup() {
   //
   Serial.begin(9600); 
   samplingPeriod = round(1000000 * (1.0 / SAMPLING_FREQUENCY));
   //button
-  pinMode(start, INPUT_PULLUP);    // Use INPUT_PULLUP to avoid needing external pull-up resistors
-    pinMode(reverse, INPUT_PULLUP);
+  pinMode(start, INPUT);    // Use INPUT_PULLUP to avoid needing external pull-up resistors
+    pinMode(reverse, INPUT);
   //lcd
   lcd.begin();
   lcd.display();
   lcd.backlight();
-  //knock
-  pinMode(pwm, OUTPUT); 
-  pinMode(dir, OUTPUT);
+  //
+  pinMode(vib_pin, INPUT); 
 }
 
 void loop() {
   startState = digitalRead(start);
   reverseState = digitalRead(reverse);
 
-    if (startState == HIGH) { 
-        
-        
-        
+    if (startState == HIGH && button==0) { 
         measuring = true;
-
         lcd.clear();
-        Serial.println("1 high"); 
+        button = 1;
         
     } 
   
-    else if (reverseState == LOW) { 
+    else if (reverseState == LOW && button==1) { 
       lcd.clear();
-        digitalWrite(dir, LOW);  
-        analogWrite(pwm, 150);    
-        Serial.println("Counterclockwise rotation");
-        Serial.println("2 high"); 
         delay(800);
-        
-        
+        button = 0;
     } 
     else { // Neither button pressed
-        analogWrite(pwm, 0);      // Stop motor
-       
-        
         clearData();
     }
-
   while (measuring) {
-    digitalWrite(dir, HIGH);  
-    analogWrite(pwm, 200);    
-    Serial.println("Clockwise rotation");
-    Serial.println("Collecting and processing frequencies...");
-    for (int j = 0; j < 3; j++) {
+    delay(100);
+    for (int j = 0; j < 8; j++) {
         // Measure sound value
-        double volts = getSoundLevel();
-
+        // double volts = getSoundLevel();
+        int vibration = getVib();
 
         // Perform FFT
         for (int i = 0; i < SAMPLES; i++) {
@@ -108,7 +95,8 @@ void loop() {
         // Store the peak frequency and sound value
         double peak = FFT.MajorPeak(vReal, SAMPLES, SAMPLING_FREQUENCY);
         frequencies[j] = peak;
-        sound[j] = volts;
+        // sound[j] = volts;
+        vib[j] = vibration;
 
 
         // Print the acquired frequency and sound value
@@ -116,11 +104,14 @@ void loop() {
         Serial.print(j + 1);
         Serial.print(": ");
         Serial.print(frequencies[j]);
-        Serial.print(" Hz, Sound Value ");
+        // Serial.print(" Hz, Sound Value ");
+        // Serial.print(j + 1);
+        // Serial.print(": ");
+        // Serial.println(sound[j]);
+        Serial.print("Vibration ");
         Serial.print(j + 1);
         Serial.print(": ");
-        Serial.println(sound[j]);
-
+        Serial.println(vib[j]);
 
         // Small delay to ensure different samples
 
@@ -130,23 +121,33 @@ void loop() {
 
 
     // Find the index of the maximum sound value
-    int maxSoundIndex = findSecondMaxSoundIndex(sound, 3);
-    double maxSoundValue = sound[maxSoundIndex];
-    double maxFrequency = frequencies[maxSoundIndex];
+    // int maxSoundIndex = findMaxSoundIndex(sound, 8);
+    int maxVibIndex = findMaxVib(vib, 8);
+
+    // double maxSoundValue = sound[maxSoundIndex];
+    int maxVib = vib[maxVibIndex];
+    // double maxFrequency = frequencies[maxSoundIndex];
+    double maxFrequency = frequencies[maxVibIndex];
+    
 
 
     Serial.print("The frequency with the highest sound value is: ");
     Serial.print(maxFrequency);
-    Serial.print(" Hz, with a sound value of: ");
-    Serial.println(maxSoundValue);
+    // Serial.print(" Hz, with a sound value of: ");
+    Serial.print(" Hz, with a vibration value of: ");
+    // Serial.println(maxSoundValue);
+    Serial.println(maxVib);
 
     lcd.setCursor(0,0);
     lcd.print("Frequency: "); 
     lcd.print(maxFrequency);// You can make spaces using well... spaces
     lcd.setCursor(0, 1); // Or setting the cursor in the desired position.
-    lcd.print("Type: ");
+    lcd.print("Sound: ");
     // delay(500);
-
+    delay(500);
+    lcd.setCursor(0,0);
+    lcd.print("Type: "); 
+    
 
 
   startState = digitalRead(start);
@@ -185,8 +186,10 @@ double getSoundLevel() {
     }
 
 
-    peakToPeak = signalMax - signalMin;  // max - min = peak-peak amplitude
-    return (peakToPeak * 5.0) / 1024;  // Convert to volts
+    peakToPeak = signalMax - signalMin;
+      // max - min = peak-peak amplitude
+    // return (peakToPeak * 5.0) / 1024;  // Convert to volts
+    return peakToPeak;
 }
 
 
@@ -200,6 +203,19 @@ int findMaxSoundIndex(double arr[], int size) {
     }
     return maxIndex;
 }
+
+int findMaxVib(double arr[], int size) {
+    int maxVibIndex = 0;
+    for (int i = 1; i < size; i++) {
+        if (arr[i] > arr[maxVibIndex]) {
+            maxVibIndex = i;
+        }
+    }
+    return maxVibIndex;
+}
+
+
+
 
 int findSecondMaxSoundIndex(double arr[], int size) {
     if (size < 2) {
@@ -222,11 +238,23 @@ int findSecondMaxSoundIndex(double arr[], int size) {
 }
 
 
+int getVib() {
+  int vibb;
+  Sensor_State = digitalRead(vib_pin);
+  if (Sensor_State == 1) {
+    int vibb = 1;
+  }
+  else {
+    int vibb = 0;
+  }
+  delay(50);
+  return vibb;
 
+}
 
 
 void clearData() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 8; i++) {
         frequencies[i] = 0;
         sound[i] = 0; 
     }
