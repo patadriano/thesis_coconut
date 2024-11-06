@@ -8,8 +8,8 @@ int reverseState = HIGH;
 
 void setup() {
     Serial.begin(9600);  
-    pinMode(start, INPUT_PULLUP);    // Use INPUT_PULLUP to avoid needing external pull-up resistors
-    pinMode(reverse, INPUT_PULLUP);
+    pinMode(start, INPUT);    // Use INPUT_PULLUP to avoid needing external pull-up resistors
+    pinMode(reverse, INPUT);
     pinMode(pwm, OUTPUT); 
     pinMode(dir, OUTPUT);
 }
