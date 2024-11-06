@@ -1,4 +1,4 @@
-int Vibration_signal = 5; //Define the Digital Input on the Arduino for the sensor signal
+int Vibration_signal = 6; //Define the Digital Input on the Arduino for the sensor signal
 int Sensor_State = 1; 
 void setup() {
   pinMode(Vibration_signal, INPUT); //Set pin as input

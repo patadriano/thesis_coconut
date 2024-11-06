@@ -10,8 +10,7 @@ double vReal[SAMPLES];         // Array to hold real part of FFT
 double vImag[SAMPLES];         // Array to hold imaginary part of FFT
 bool measuring = false;  
      // Flag to indicate if measurements should be taken
-double frequencies[8];        // Array to store the first s0 frequencies
-double sound[8];  
+
             // Array to store the first s0 sound values
 const int sampleWindow = 50;   // Sample window width in mS (50 mS = 20Hz)
 unsigned int sample;
@@ -29,8 +28,9 @@ LCD_I2C lcd(0x27, 16, 2);
 int button=0;
 //vib
 int vib_pin = 6;
-int Sensor_State = 1;
-double vib[8];
+int Sensor_State = 0;
+int vibration;
+
 
 void setup() {
   //
@@ -60,21 +60,25 @@ void loop() {
   
     else if (reverseState == LOW && button==1) { 
       lcd.clear();
-      lcd.print("Resetting... ");
         delay(800);
         button = 0;
-      lcd.clear();
-      lcd.print("Press Start ");
     } 
     else { // Neither button pressed
-        clearData();
+        // clearData();
     }
-  while (measuring) {
-    
-    for (int j = 0; j < 8; j++) {
-        // Measure sound value
-        // double volts = getSoundLevel();
-        int vibration = getVib();
+  // while (measuring) {
+    delay(100);
+  
+        // int vibration = getVib();
+        
+        Sensor_State = digitalRead(vib_pin);
+        if (Sensor_State == 1) {
+          vibration = 1;
+        }
+        else {
+          vibration = 0;
+        }
+        delay(50);
 
         // Perform FFT
         for (int i = 0; i < SAMPLES; i++) {
@@ -97,55 +101,30 @@ void loop() {
 
         // Store the peak frequency and sound value
         double peak = FFT.MajorPeak(vReal, SAMPLES, SAMPLING_FREQUENCY);
-        frequencies[j] = peak;
-        // sound[j] = volts;
-        vib[j] = vibration;
+        
 
 
         // Print the acquired frequency and sound value
         Serial.print("Frequency ");
-        Serial.print(j + 1);
+      
         Serial.print(": ");
-        Serial.print(frequencies[j]);
+        Serial.print(peak);
         // Serial.print(" Hz, Sound Value ");
         // Serial.print(j + 1);
         // Serial.print(": ");
         // Serial.println(sound[j]);
         Serial.print(" Vibration ");
-        Serial.print(j + 1);
+  
         Serial.print(": ");
-        Serial.println(vib[j]);
-
-        // Small delay to ensure different samples
-
-        
-        
-    }
+        Serial.println(vibration);
 
 
-    // Find the index of the maximum sound value
-    // int maxSoundIndex = findMaxSoundIndex(sound, 8);
-    int maxVibIndex = findMaxVib(vib, 8);
 
-    // double maxSoundValue = sound[maxSoundIndex];
-    int maxVib = vib[maxVibIndex];
-    // double maxFrequency = frequencies[maxSoundIndex];
-    double maxFrequency = frequencies[maxVibIndex];
-    
-
-
-    Serial.print("The frequency with the highest sound value is: ");
-    Serial.print(maxFrequency);
-    // Serial.print(" Hz, with a sound value of: ");
-    Serial.print(" Hz, with a vibration value of: ");
-    // Serial.println(maxSoundValue);
-    Serial.println(maxVib);
-
-    lcd.setCursor(0,0);
-    lcd.print("Frequency: "); 
-    lcd.print(maxFrequency);// You can make spaces using well... spaces
-    lcd.setCursor(0, 1); // Or setting the cursor in the desired position.
-    lcd.print("Type: ");
+    // lcd.setCursor(0,0);
+    // lcd.print("Frequency: "); 
+    // lcd.print(peak);// You can make spaces using well... spaces
+    // lcd.setCursor(0, 1); // Or setting the cursor in the desired position.
+    // lcd.print("Sound: ");
     // delay(500);
     // delay(500);
     // lcd.setCursor(0,0);
@@ -159,10 +138,10 @@ void loop() {
     Serial.println("1 high"); 
   } else {
     measuring = false;
-    clearData();
+    // clearData();
     Serial.println("1 low"); 
   }
-}
+// }
 
   
 }
@@ -256,9 +235,9 @@ int getVib() {
 }
 
 
-void clearData() {
-    for (int i = 0; i < 8; i++) {
-        frequencies[i] = 0;
-        sound[i] = 0; 
-    }
-}
+// void clearData() {
+//     for (int i = 0; i < 8; i++) {
+//         frequencies[i] = 0;
+//         sound[i] = 0; 
+//     }
+// }
