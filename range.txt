@@ -1,0 +1,5 @@
+- after vibration, first within range
+- during vibration, first within range
+- no range 
+- 
+

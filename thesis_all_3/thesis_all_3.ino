@@ -32,6 +32,9 @@ int vib_pin = 6;
 int Sensor_State = 1;
 double vib[8];
 
+int in2 = 9;
+int ct = 0;
+
 void setup() {
   //
   Serial.begin(9600); 
@@ -45,6 +48,12 @@ void setup() {
   lcd.backlight();
   //
   pinMode(vib_pin, INPUT); 
+
+  lcd.setCursor(0, 0);
+  lcd.print("Press Button to");
+  lcd.setCursor(0, 1);
+   lcd.print("Start ");
+
 }
 
 void loop() {
@@ -52,6 +61,7 @@ void loop() {
   reverseState = digitalRead(reverse);
 
     if (startState == HIGH && button==0) { 
+      
         measuring = true;
         lcd.clear();
         button = 1;
@@ -64,7 +74,10 @@ void loop() {
         delay(800);
         button = 0;
       lcd.clear();
-      lcd.print("Press Start ");
+      lcd.setCursor(0, 0);
+      lcd.print("Press Button to");
+      lcd.setCursor(0, 1);
+      lcd.print("Start ");
     } 
     else { // Neither button pressed
         clearData();
@@ -74,7 +87,7 @@ void loop() {
     for (int j = 0; j < 8; j++) {
         // Measure sound value
         // double volts = getSoundLevel();
-        int vibration = getVib();
+        
 
         // Perform FFT
         for (int i = 0; i < SAMPLES; i++) {
@@ -97,10 +110,20 @@ void loop() {
 
         // Store the peak frequency and sound value
         double peak = FFT.MajorPeak(vReal, SAMPLES, SAMPLING_FREQUENCY);
+
+        int vibration = getVib();
         frequencies[j] = peak;
         // sound[j] = volts;
         vib[j] = vibration;
-
+        //
+        if (vib[j] == 1){
+          if(frequencies[j] > 110 && frequencies[j] < 260 && ct == 0){
+            in2 = j; 
+            ct++;
+          } 
+          }
+        
+        ct = 0;
 
         // Print the acquired frequency and sound value
         Serial.print("Frequency ");
@@ -121,7 +144,7 @@ void loop() {
         
         
     }
-
+    double maxFrequency;
 
     // Find the index of the maximum sound value
     // int maxSoundIndex = findMaxSoundIndex(sound, 8);
@@ -130,10 +153,15 @@ void loop() {
     // double maxSoundValue = sound[maxSoundIndex];
     int maxVib = vib[maxVibIndex];
     // double maxFrequency = frequencies[maxSoundIndex];
-    double maxFrequency = frequencies[maxVibIndex];
+    
+    if (in2 == 9){
+      maxFrequency = frequencies[maxVibIndex];
+    }else{
+      maxFrequency = frequencies[in2];
+    }
     
 
-
+    in2 = 9;
     Serial.print("The frequency with the highest sound value is: ");
     Serial.print(maxFrequency);
     // Serial.print(" Hz, with a sound value of: ");
@@ -141,11 +169,27 @@ void loop() {
     // Serial.println(maxSoundValue);
     Serial.println(maxVib);
 
-    lcd.setCursor(0,0);
-    lcd.print("Frequency: "); 
-    lcd.print(maxFrequency);// You can make spaces using well... spaces
-    lcd.setCursor(0, 1); // Or setting the cursor in the desired position.
-    lcd.print("Type: ");
+
+    if(maxVib == 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+    lcd.print("Try Again");
+
+    }else if (maxFrequency < 110 && maxFrequency < 260){
+      lcd.setCursor(0,0);
+      lcd.print("Reposition"); 
+      
+      lcd.setCursor(0, 1); // Or setting the cursor in the desired position. 
+      lcd.print("Coconut");
+    }else{
+      lcd.setCursor(0,0);
+      lcd.print("Frequency: "); 
+      lcd.print(maxFrequency);// You can make spaces using well... spaces
+      lcd.setCursor(0, 1); // Or setting the cursor in the desired position. 
+      lcd.print("Type: ");
+    }
+
+    
     // delay(500);
     // delay(500);
     // lcd.setCursor(0,0);
@@ -262,3 +306,4 @@ void clearData() {
         sound[i] = 0; 
     }
 }
+
