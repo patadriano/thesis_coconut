@@ -74,11 +74,37 @@ void loop() {
   }
   ct = false;
   while (measuring) {
+    
+        
     for (int j = 0; j < 8; j++) {
-        frequencies[j] = getFFT();
-        vib[j] = getVib();
+      for (int i = 0; i < SAMPLES; i++) {
+            microSeconds = micros();  
+            vReal[i] = analogRead(INPUT_PIN); 
+            vImag[i] = 0;  
+            while (micros() - microSeconds < samplingPeriod) {
+            }
+        }
+        FFT.Windowing(vReal, SAMPLES, FFT_WIN_TYP_HAMMING, FFT_FORWARD); 
+        FFT.Compute(vReal, vImag, SAMPLES, FFT_FORWARD); 
+        FFT.ComplexToMagnitude(vReal, vImag, SAMPLES); 
+        double peak = FFT.MajorPeak(vReal, SAMPLES, SAMPLING_FREQUENCY);
+
+
+
+        int vibb;
+  Sensor_State = digitalRead(vib_pin);
+  if (Sensor_State == 1) {
+    vibb = 1;
+  }
+  else {
+    vibb = 0;
+  }
+  delay(50);
+  
+        frequencies[j] = peak;
+        vib[j] = vibb;
         if (vib[j] == 1){
-          if(frequencies[j] => 132 && frequencies[j] <= 262 && ct == false){
+          if(frequencies[j] >= 132 && frequencies[j] <= 262 && ct == false){
             index = j; 
             ct = true;
           } 
@@ -117,26 +143,41 @@ void loop() {
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Try Again");
-    }else if (maxFrequency < 110 && maxFrequency > 260){
+    }else if (maxFrequency < 132 || maxFrequency > 262){
       lcd.setCursor(0,0);
       lcd.print("Reposition"); 
       lcd.setCursor(0, 1); 
       lcd.print("Coconut");
     }else{
-      char *type;
-      if (maxFrequency > 132 && maxFrequency < 152) {
-        type = "Malauhog";
-      }else if (maxFrequency > 152 && maxFrequency < 172){
-        type = "Malakanin";
-      }else if (maxFrequency > 172 && maxFrequency < 262){
-        type = "Malakatad";
-      }
-      lcd.setCursor(0,0);
+      
+      if (maxFrequency > 132 && maxFrequency < 172) {
+       lcd.setCursor(0,0);
       lcd.print("Frequency: "); 
       lcd.print(maxFrequency);
       lcd.setCursor(0, 1); 
       lcd.print("Type: ");
-      lcd.print(type);
+      lcd.print("Malakatad");
+      }else if (maxFrequency > 172 && maxFrequency < 200){
+        lcd.setCursor(0,0);
+      lcd.print("Frequency: "); 
+      lcd.print(maxFrequency);
+      lcd.setCursor(0, 1); 
+      lcd.print("Type: ");
+      lcd.print("Malakanin");
+      }else if (maxFrequency > 200 && maxFrequency < 262){
+        lcd.setCursor(0,0);
+      lcd.print("Frequency: "); 
+      lcd.print(maxFrequency);
+      lcd.setCursor(0, 1); 
+      lcd.print("Type: ");
+      lcd.print("Malauhog");
+      }else{
+         lcd.setCursor(0,0);
+          lcd.print("Reposition"); 
+          lcd.setCursor(0, 1); 
+          lcd.print("Coconut");
+      }
+      
     }
 
   startState = digitalRead(start);

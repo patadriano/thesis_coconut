@@ -84,7 +84,7 @@ void loop() {
             index = j; 
             ct = true;
         }
-        if (j >= index) {
+        if (j >= index && ct == true) {
             if(frequencies[j] >= 132 && frequencies[j] <= 262 && ct2 == false){
               index2 = j;
               ct2 = true;
@@ -119,31 +119,42 @@ void loop() {
     Serial.println(maxVib);
 
    
-
+    Serial.println(maxFrequency);
     if(maxVib == 0){
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Try Again");
-    }else if (maxFrequency < 110 && maxFrequency > 260){
+      Serial.println("try");
+    }else if (maxFrequency < 132 || maxFrequency > 262){
       lcd.setCursor(0,0);
       lcd.print("Reposition"); 
       lcd.setCursor(0, 1); 
       lcd.print("Coconut");
+      Serial.println("repo");
     }else{
-      char *type;
-      if (maxFrequency > 132 && maxFrequency < 152) {
-        type = "Malauhog";
-      }else if (maxFrequency > 152 && maxFrequency < 172){
-        type = "Malakanin";
-      }else if (maxFrequency > 172 && maxFrequency < 262){
-        type = "Malakatad";
-      }
-      lcd.setCursor(0,0);
+      Serial.println("freq");
+      if (maxFrequency > 132 && maxFrequency < 172) {
+        lcd.setCursor(0,0);
       lcd.print("Frequency: "); 
       lcd.print(maxFrequency);
       lcd.setCursor(0, 1); 
       lcd.print("Type: ");
-      lcd.print(type);
+      lcd.print("Malakatad");
+      }else if (maxFrequency > 172 && maxFrequency < 200){
+        lcd.setCursor(0,0);
+      lcd.print("Frequency: "); 
+      lcd.print(maxFrequency);
+      lcd.setCursor(0, 1); 
+      lcd.print("Malakanin");
+      }else if (maxFrequency > 200  && maxFrequency < 262){
+        lcd.setCursor(0,0);
+      lcd.print("Frequency: "); 
+      lcd.print(maxFrequency);
+      lcd.setCursor(0, 1); 
+      lcd.print("Type: ");
+      lcd.print("Malauhog");
+      }
+   
     }
 
   startState = digitalRead(start);

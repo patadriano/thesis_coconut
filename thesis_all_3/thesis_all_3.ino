@@ -40,7 +40,7 @@ void setup() {
   Serial.begin(9600); 
   samplingPeriod = round(1000000 * (1.0 / SAMPLING_FREQUENCY));
   //button
-  pinMode(start, INPUT);    // Use INPUT_PULLUP to avoid needing external pull-up resistors
+  pinMode(start, INPUT);    
     pinMode(reverse, INPUT);
   //lcd
   lcd.begin();
