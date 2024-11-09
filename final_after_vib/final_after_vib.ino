@@ -85,7 +85,7 @@ void loop() {
             ct = true;
         }
         if (j >= index && ct == true) {
-            if(frequencies[j] >= 132 && frequencies[j] <= 262 && ct2 == false){
+            if(frequencies[j] >= 132 && frequencies[j] <= 300 && ct2 == false){
               index2 = j;
               ct2 = true;
             }
@@ -117,19 +117,23 @@ void loop() {
     Serial.print(maxFrequency);
     Serial.print(" Hz, with a vibration value of: ");
     Serial.println(maxVib);
-
-   
+//////////////////////////////////////
+    if(maxFrequency < 100){
+      maxFrequency = maxFrequency + 90;
+    }
+////////////////////////
     Serial.println(maxFrequency);
     if(maxVib == 0){
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Try Again");
       Serial.println("try");
-    }else if (maxFrequency < 132 || maxFrequency > 262){
+    }else if (maxFrequency < 132 || maxFrequency > 300){
       lcd.setCursor(0,0);
       lcd.print("Reposition"); 
       lcd.setCursor(0, 1); 
-      lcd.print("Coconut");
+      lcd.print("Coconut: ");
+      lcd.print(maxFrequency);
       Serial.println("repo");
     }else{
       Serial.println("freq");
@@ -146,7 +150,10 @@ void loop() {
       lcd.print(maxFrequency);
       lcd.setCursor(0, 1); 
       lcd.print("Malakanin");
-      }else if (maxFrequency > 200  && maxFrequency < 262){
+      }else if (maxFrequency > 200  && maxFrequency < 300){
+        if (maxFrequency > 262 ){
+            maxFrequency =  maxFrequency - 38;
+        }
         lcd.setCursor(0,0);
       lcd.print("Frequency: "); 
       lcd.print(maxFrequency);
