@@ -118,7 +118,7 @@ void loop() {
     Serial.print(" Hz, with a vibration value of: ");
     Serial.println(maxVib);
 //////////////////////////////////////
-    if(maxFrequency > 60 && maxFrequency < 90){
+    if(maxFrequency > 60 && maxFrequency < 100){
       maxFrequency = maxFrequency + 90;
     }
 ////////////////////////
