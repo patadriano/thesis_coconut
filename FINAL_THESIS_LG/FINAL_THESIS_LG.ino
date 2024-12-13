@@ -2,7 +2,7 @@
 #include "arduinoFFT.h"
 #define SAMPLES 128            
 #define SAMPLING_FREQUENCY 2048 
-#define INPUT_PIN A0           
+#define INPUT_PIN A1          
 arduinoFFT FFT = arduinoFFT();
 unsigned int samplingPeriod;
 unsigned long microSeconds;
@@ -77,6 +77,7 @@ void loop() {
   ct = false;
   ct2 = false;
   while (measuring) {
+    delay(100);
     for (int j = 0; j < 8; j++) {
         frequencies[j] = getFFT();
         vib[j] = getVib();

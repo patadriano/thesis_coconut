@@ -2,7 +2,7 @@
 #include "arduinoFFT.h"
 #define SAMPLES 128            
 #define SAMPLING_FREQUENCY 2048 
-#define INPUT_PIN A1         
+#define INPUT_PIN A1          
 arduinoFFT FFT = arduinoFFT();
 unsigned int samplingPeriod;
 unsigned long microSeconds;
@@ -77,19 +77,11 @@ void loop() {
   ct = false;
   ct2 = false;
   while (measuring) {
+    delay(100);
     for (int j = 0; j < 8; j++) {
         frequencies[j] = getFFT();
         vib[j] = getVib();
-        if (vib[j] == 1 && ct == false){
-            index = j; 
-            ct = true;
-        }
-        if (j >= index && ct == true) {
-            if(frequencies[j] >= 132 && frequencies[j] <= 300 && ct2 == false){
-              index2 = j;
-              ct2 = true;
-            }
-        }
+        // a
 
         Serial.print("Frequency ");
         Serial.print(j + 1);
@@ -104,12 +96,13 @@ void loop() {
     double maxFrequency;
     int maxVibIndex = findMaxVib(vib, 8);
     int maxVib = vib[maxVibIndex];
-    
-    if (ct2 == false){
-      maxFrequency = frequencies[maxVibIndex];
-    }else{
-      maxFrequency = frequencies[index2];
-    }
+    ///
+    maxFrequency = frequencies[0];
+    // if (ct2 == false){
+    //   maxFrequency = frequencies[maxVibIndex];
+    // }else{
+    //   maxFrequency = frequencies[index2];
+    // }
 
     index = 9;
 
@@ -117,18 +110,14 @@ void loop() {
     Serial.print(maxFrequency);
     Serial.print(" Hz, with a vibration value of: ");
     Serial.println(maxVib);
-//////////////////////////////////////
-    if(maxFrequency > 55 && maxFrequency < 100){
-      maxFrequency = maxFrequency + 90;
-    }
-////////////////////////
+
     Serial.println(maxFrequency);
     if(maxVib == 0){
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Try Again");
       Serial.println("try");
-    }else if (maxFrequency < 132 || maxFrequency > 300){
+    }else if (maxFrequency < 160 || maxFrequency > 870){
       lcd.setCursor(0,0);
       lcd.print("Reposition"); 
       lcd.setCursor(0, 1); 
@@ -137,29 +126,27 @@ void loop() {
       Serial.println("repo");
     }else{
       Serial.println("freq");
-      if (maxFrequency > 132 && maxFrequency < 172) {
-        lcd.setCursor(0,0);
-      lcd.print("Frequency: "); 
-      lcd.print(maxFrequency);
-      lcd.setCursor(0, 1); 
-      lcd.print("Type: ");
-      lcd.print("Malakatad");
-      }else if (maxFrequency > 172 && maxFrequency < 200){
-        lcd.setCursor(0,0);
-      lcd.print("Frequency: "); 
-      lcd.print(maxFrequency);
-      lcd.setCursor(0, 1); 
-      lcd.print("Malakanin");
-      }else if (maxFrequency > 200  && maxFrequency < 300){
-        if (maxFrequency > 262 ){
-            maxFrequency =  maxFrequency - 38;
-        }
+      if (maxFrequency > 160 && maxFrequency < 399) {
         lcd.setCursor(0,0);
       lcd.print("Frequency: "); 
       lcd.print(maxFrequency);
       lcd.setCursor(0, 1); 
       lcd.print("Type: ");
       lcd.print("Malauhog");
+      }else if (maxFrequency > 400 && maxFrequency < 699){
+        lcd.setCursor(0,0);
+      lcd.print("Frequency: "); 
+      lcd.print(maxFrequency);
+      lcd.setCursor(0, 1); 
+      lcd.print("Malakanin");
+      }else if (maxFrequency > 700  && maxFrequency < 870){
+      
+        lcd.setCursor(0,0);
+      lcd.print("Frequency: "); 
+      lcd.print(maxFrequency);
+      lcd.setCursor(0, 1); 
+      lcd.print("Type: ");
+      lcd.print("Malakatad");
       }
    
     }
@@ -219,3 +206,5 @@ double getFFT(){
         double peak = FFT.MajorPeak(vReal, SAMPLES, SAMPLING_FREQUENCY);
         return peak;
 }
+
+
